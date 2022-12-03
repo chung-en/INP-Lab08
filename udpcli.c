@@ -8,17 +8,25 @@
 static int file_no = 0, seq_no = 0;
 static int s = -1;
 static struct sockaddr_in sin;
+static int nfiles = INT_MAX;
+static int terminate = 0;
 
 void recv_ack(int sig) {
 	ack_t ack;
 	struct sockaddr_in csin;
 	socklen_t csinlen = sizeof(csin);
-	if (recvfrom(s, (void*) &ack, sizeof(ack), 0, (struct sockaddr*) &csin, &csinlen) > 0) {
+	int rlen;
+
+	while ((rlen = recvfrom(s, (void*) &ack, sizeof(ack), 0, (struct sockaddr*) &csin, &csinlen)) > 0) {
 		printack(&ack);
 		file_no = ack.file_no;
 		seq_no = ack.seq_no;
+
+		if (file_no == nfiles) {
+			exit(0);
+		}
 	}
-	
+
 	alarm(1);
 }
 
@@ -29,8 +37,9 @@ int main(int argc, char *argv[]) {
 
 	char 	*path = argv[1];
 	char 	filepath[30];
-	int		nfiles = atoi(argv[2]);
 	int 	fr;
+
+	nfiles = atoi(argv[2]);
 
 	setvbuf(stdin, NULL, _IONBF, 0);
 	setvbuf(stderr, NULL, _IONBF, 0);
@@ -49,7 +58,9 @@ int main(int argc, char *argv[]) {
 	signal(SIGALRM, recv_ack);
 	alarm(1);
 
-	for (file_no = 0, seq_no = 0; file_no < nfiles;) {
+	for (file_no = 0, seq_no = 0; file_no <= nfiles; ) {
+		if (file_no == nfiles && terminate == 0) continue;
+		else if (file_no == nfiles && terminate == 1) break;
 		sprintf(filepath, "%s/%06d", path, file_no);
 		
 		fr = open(filepath, O_RDONLY);
@@ -65,14 +76,16 @@ int main(int argc, char *argv[]) {
 				if (strlen(pkt.data) < MAXLINE) pkt.eof = 1;
 				else pkt.eof = 0;
 
-				printpkt(&pkt);
+				// printpkt(&pkt);
 
 				if(sendto(s, (void*) &pkt, sizeof(pkt), 0, (struct sockaddr*) &sin, sizeof(sin)) < 0)
 					perror("sendto");
 				
 				pkt.seq_no++;
+				seq_no++;
 			}
 
+			file_no++;
 			close(fr);
 		}
 	}

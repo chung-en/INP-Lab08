@@ -9,15 +9,16 @@ static int file_no = 0, seq_no = 0;
 static int s = -1;
 static struct sockaddr_in sin;
 
+static struct sockaddr_in csin;
+static socklen_t csinlen = sizeof(csin);
+
 void send_ack(int sig) {
 	ack_t ack = {.file_no = file_no, .seq_no = seq_no+1};
-	sendto(s, (void*) &ack, sizeof(ack), 0, (struct sockaddr*) &sin, sizeof(sin));
+	sendto(s, (void*) &ack, sizeof(ack), 0, (struct sockaddr*) &csin, sizeof(csin));
 	printack(&ack);
 
 	alarm(1);
 }
-
-void do_nothing(int sig) {}
 
 int main(int argc, char *argv[]) {
 
@@ -28,7 +29,7 @@ int main(int argc, char *argv[]) {
 	char	*path = argv[1];
 	char 	filepath[30];
 	int		nfiles = atoi(argv[2]);
-	int 	fw, file_no, seq_no;
+	int 	fw;
 	int 	rlen;
 
 	setvbuf(stdin, NULL, _IONBF, 0);
@@ -62,8 +63,6 @@ int main(int argc, char *argv[]) {
 		}
 
 		/* deal with packet */
-		struct sockaddr_in csin;
-		socklen_t csinlen = sizeof(csin);
 		pkt_t pkt;
 		for ( ; ; ) {
 
@@ -72,12 +71,12 @@ int main(int argc, char *argv[]) {
 				continue;
 			}
 
-			printf("Receive packet:\n");
-			printpkt(&pkt);
-
 			/* Ack and write file */
 			if (file_no == pkt.file_no && seq_no == pkt.seq_no)
 			{
+				printf("Receive packet:\n");
+				// printpkt(&pkt);
+
 				if (write(fw, pkt.data, strlen(pkt.data)) < 0)
 					perror("write");
 				
@@ -94,10 +93,9 @@ int main(int argc, char *argv[]) {
 		
 		close(fw);
 	}
-
-	signal(SIGALRM, do_nothing);
-
-	for ( ; ; );
+	
+	printf("check %d %d\n", file_no, seq_no);
+	send_ack(SIGALRM);
 
 	close(s);
 }

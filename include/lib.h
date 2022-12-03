@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include <unistd.h>
 #include <signal.h>
 #include <time.h>
@@ -14,7 +15,7 @@
 
 #define err_quit(m) { perror(m); exit(-1); }
 
-#define MAXLINE 80
+#define MAXLINE 8096
 
 typedef struct {
     int     file_no;
