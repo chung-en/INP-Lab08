@@ -3,7 +3,7 @@
 To compile and test the code, you can follow the steps below
 ### Download
 ```
-wget https://github.com/chung-en/INP-Lab08.git
+git clone https://github.com/chung-en/INP-Lab08.git
 ```
 
 ### Compile
