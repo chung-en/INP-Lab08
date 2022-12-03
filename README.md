@@ -24,5 +24,5 @@ chmod +x submit.sh
 ```
 ./udpcli ./send <total-number-of-files> 127.0.0.1 <port>
 ```
-After terminate of program, you can check the transmitted file in directory `recv`
+You can check the transmitted file in directory `recv` after the above run successfully.
 Don't forget remove all files in recv before next test :)
