@@ -1,0 +1,1 @@
+python3 submit.py ./udpsrv ./udpcli `cat team_token.txt`
