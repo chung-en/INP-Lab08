@@ -25,6 +25,8 @@ void recv_ack(int sig) {
 		if (file_no == nfiles) {
 			exit(0);
 		}
+
+		memset(&ack, 0, sizeof(ack));
 	}
 
 	alarm(1);
@@ -60,7 +62,7 @@ int main(int argc, char *argv[]) {
 
 	for (file_no = 0, seq_no = 0; file_no <= nfiles; ) {
 		if (file_no == nfiles && terminate == 0) continue;
-		else if (file_no == nfiles && terminate == 1) break;
+		
 		sprintf(filepath, "%s/%06d", path, file_no);
 		
 		fr = open(filepath, O_RDONLY);
@@ -83,8 +85,15 @@ int main(int argc, char *argv[]) {
 				
 				pkt.seq_no++;
 				seq_no++;
+				
+				memset(&pkt.data, 0, sizeof(pkt.data));
 			}
 
+			pkt.eof = 1;
+			if(sendto(s, (void*) &pkt, sizeof(pkt), 0, (struct sockaddr*) &sin, sizeof(sin)) < 0)
+				perror("sendto");
+
+			seq_no = 0;
 			file_no++;
 			close(fr);
 		}

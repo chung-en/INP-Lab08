@@ -13,9 +13,9 @@ static struct sockaddr_in csin;
 static socklen_t csinlen = sizeof(csin);
 
 void send_ack(int sig) {
-	ack_t ack = {.file_no = file_no, .seq_no = seq_no+1};
+	ack_t ack = {.file_no = file_no, .seq_no = seq_no};
 	sendto(s, (void*) &ack, sizeof(ack), 0, (struct sockaddr*) &csin, sizeof(csin));
-	printack(&ack);
+	// printack(&ack);
 
 	alarm(1);
 }
@@ -62,20 +62,21 @@ int main(int argc, char *argv[]) {
 			continue;
 		}
 
-		/* deal with packet */
+		/* Deal with packets */
 		pkt_t pkt;
 		for ( ; ; ) {
 
+			/* Receive packet */
 			if((rlen = recvfrom(s, (void*) &pkt, sizeof(pkt), 0, (struct sockaddr*) &csin, &csinlen)) <= 0) {
 				perror("recvfrom");
 				continue;
 			}
 
-			/* Ack and write file */
+			/* Store */
 			if (file_no == pkt.file_no && seq_no == pkt.seq_no)
 			{
 				printf("Receive packet:\n");
-				// printpkt(&pkt);
+				printpkt(&pkt);
 
 				if (write(fw, pkt.data, strlen(pkt.data)) < 0)
 					perror("write");
@@ -84,6 +85,7 @@ int main(int argc, char *argv[]) {
 
 				if (pkt.eof == 1) {
 					file_no++;
+					seq_no = 0;
 					break;	
 				}
 			}
