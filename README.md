@@ -5,7 +5,7 @@
 make
 ```
 
-### Submit to target server
+### Test
 ```
 chmod +x submit.sh
 ./submit.sh
