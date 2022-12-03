@@ -24,7 +24,7 @@ mkdir recv # if directory recv does not exsist
 ./udpsrv ./recv 3 10000
 ```
 ```
-./udpcli ./send 3 127.0.0.1 10000
+./udpcli ./send 3 10000 127.0.0.1
 ```
 You can check the transmitted file in directory `recv` after the above run successfully.
 Don't forget remove all files in recv before next test :)
