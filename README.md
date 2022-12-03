@@ -20,7 +20,7 @@ chmod +x submit.sh # if it is first time to run submit.sh
 
 ### Test - local
 ```
-mkdir recv # if `recv` does not exsist
+mkdir recv # if directory recv does not exsist
 ./udpsrv ./recv <total-number-of-files> <port>
 ```
 ```
