@@ -75,8 +75,8 @@ int main(int argc, char *argv[]) {
 			/* Store */
 			if (file_no == pkt.file_no && seq_no == pkt.seq_no)
 			{
-				printf("Receive packet:\n");
-				printpkt(&pkt);
+				printf("Recv %d %d\n", pkt.file_no, pkt.seq_no);
+				// printpkt(&pkt);
 
 				if (write(fw, pkt.data, strlen(pkt.data)) < 0)
 					perror("write");

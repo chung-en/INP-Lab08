@@ -9,18 +9,21 @@ static int file_no = 0, seq_no = 0;
 static int s = -1;
 static struct sockaddr_in sin;
 static int nfiles = INT_MAX;
-static int terminate = 0;
+static ack_t ack;
+
+static int count = 0;
 
 void recv_ack(int sig) {
-	ack_t ack;
 	struct sockaddr_in csin;
 	socklen_t csinlen = sizeof(csin);
 	int rlen;
 
-	while ((rlen = recvfrom(s, (void*) &ack, sizeof(ack), 0, (struct sockaddr*) &csin, &csinlen)) > 0) {
+	while ((rlen = recvfrom(s, (void*) &ack, sizeof(ack), MSG_DONTWAIT, (struct sockaddr*) &csin, &csinlen)) > 0) {
+		printf("Receive ACK ");
 		printack(&ack);
+
 		file_no = ack.file_no;
-		seq_no = ack.seq_no;
+		seq_no = 0;
 
 		if (file_no == nfiles) {
 			exit(0);
@@ -28,6 +31,8 @@ void recv_ack(int sig) {
 
 		memset(&ack, 0, sizeof(ack));
 	}
+
+	count = 0;
 
 	alarm(1);
 }
@@ -61,12 +66,12 @@ int main(int argc, char *argv[]) {
 	alarm(1);
 
 	for (file_no = 0, seq_no = 0; file_no <= nfiles; ) {
-		if (file_no == nfiles && terminate == 0) continue;
+		if (file_no == nfiles) continue;
 		
 		sprintf(filepath, "%s/%06d", path, file_no);
 		
 		fr = open(filepath, O_RDONLY);
-		pkt_t pkt = {.file_no = file_no, .seq_no = seq_no};
+		pkt_t pkt = {.file_no = file_no, .seq_no = seq_no, .eof = 0};
 		
 		if (fr == -1)
 		{	
@@ -75,17 +80,19 @@ int main(int argc, char *argv[]) {
 		else
 		{
 			while (read(fr, pkt.data, sizeof(pkt.data)) > 0) {
-				if (strlen(pkt.data) < MAXLINE) pkt.eof = 1;
-				else pkt.eof = 0;
+				if (file_no == ack.file_no && seq_no < ack.seq_no) continue;
 
 				// printpkt(&pkt);
 
-				if(sendto(s, (void*) &pkt, sizeof(pkt), 0, (struct sockaddr*) &sin, sizeof(sin)) < 0)
-					perror("sendto");
+				for (int i = 0; i < 30; i++) {
+					if(sendto(s, (void*) &pkt, sizeof(pkt), 0, (struct sockaddr*) &sin, sizeof(sin)) < 0)
+						perror("sendto");
+					usleep(1);
+				}
 				
 				pkt.seq_no++;
 				seq_no++;
-				
+
 				memset(&pkt.data, 0, sizeof(pkt.data));
 			}
 
@@ -93,10 +100,14 @@ int main(int argc, char *argv[]) {
 			if(sendto(s, (void*) &pkt, sizeof(pkt), 0, (struct sockaddr*) &sin, sizeof(sin)) < 0)
 				perror("sendto");
 
-			seq_no = 0;
 			file_no++;
+			seq_no = 0;
+
 			close(fr);
 		}
+
+		memset(filepath, 0, sizeof(filepath));
+		usleep(200);
 	}
 
 	close(s);
