@@ -6,25 +6,27 @@ To compile and test the code, you can follow the steps below
 git clone https://github.com/chung-en/INP-Lab08.git
 ```
 
-### Compile
+## Compile
 **You need to have `make` installed in your environment**
 ```
 make
 ```
+## Test
 
 ### Test - On challenge server
 ```
-chmod +x submit.sh # if it is first time to run submit.sh
 ./submit.sh
 ```
 
 ### Test - local
+**Server**
 ```
-mkdir recv # if directory recv does not exsist
-./udpsrv ./recv 3 10000
+./run_server.sh
 ```
+This will automatically show files that server received after the program terminates.
+
+**Client**
 ```
-./udpcli ./send 3 10000 127.0.0.1
+./run_client.sh
 ```
-You can check the transmitted file in directory `recv` after the above run successfully.
-Don't forget remove all files in recv before next test :)
+This will automatically generate files if the target directory is empty before we run the client.
