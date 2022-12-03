@@ -13,7 +13,7 @@ make
 
 ### Test - On challenge server
 ```
-chmod +x submit.sh
+chmod +x submit.sh \# if it is first time to run submit.sh
 ./submit.sh
 ```
 
