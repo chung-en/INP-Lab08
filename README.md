@@ -7,6 +7,7 @@ git clone https://github.com/chung-en/INP-Lab08.git
 ```
 
 ### Compile
+**You need to have `make` installed in your environment**
 ```
 make
 ```
