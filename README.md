@@ -1,5 +1,10 @@
 # INP-Lab08
 **Robust UDP challenge**
+To compile and test the code, you can follow the steps below
+### Download
+```
+wget https://github.com/chung-en/INP-Lab08
+```
 
 ### Compile
 ```
