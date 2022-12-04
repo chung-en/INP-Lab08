@@ -31,7 +31,7 @@ make
 ```
 ./run_server.sh
 ```
-This will automatically show files that server received after the program terminates.
+This will automatically show files that server received after the program terminates and calculate success rate and the number of correct files
 
 **Client**
 ```
