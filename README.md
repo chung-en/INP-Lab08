@@ -1,8 +1,12 @@
 # INP-Lab08
 **Robust UDP challenge**
 
+## Updates
+- use `ualarm` to shrink the interval between each signal
+- send same packet several times to increase the success rate
+
 To compile and test the code, you can follow the steps below
-### Download
+## Download
 ```
 git clone https://github.com/chung-en/INP-Lab08.git
 ```
