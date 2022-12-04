@@ -2,7 +2,7 @@
 **Robust UDP challenge**
 
 ## Results
-![result](https://github.com/[chung-en]/[INP-Lab08]/[v2]/Result.jpg?raw=true)
+![result](https://github.com/[chung-en]/[INP-Lab08]/blob/[v2]/Result.jpg?raw=true)
 
 ## Updates
 - use `ualarm` to shrink the interval between each signal
