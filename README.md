@@ -55,6 +55,8 @@ This will automatically show files that server received after the program termin
 ```
 This will automatically generate files if the target directory is empty before we run the client.
 
+\# Note: You should run `./run_server.sh` and `./run_client.sh` on two windows simultaneously
+
 ### Play with challenge server
 ```
 ./submit.sh
