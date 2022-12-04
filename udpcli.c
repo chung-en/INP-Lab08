@@ -11,16 +11,21 @@ static struct sockaddr_in sin;
 static int nfiles = INT_MAX;
 static ack_t ack;
 
-static int count = 0;
-
 void recv_ack(int sig) {
 	struct sockaddr_in csin;
 	socklen_t csinlen = sizeof(csin);
 	int rlen;
 
+	usleep(256);
+
+	static int recordfn = 0, recordsn = 0;
 	while ((rlen = recvfrom(s, (void*) &ack, sizeof(ack), MSG_DONTWAIT, (struct sockaddr*) &csin, &csinlen)) > 0) {
-		printf("Receive ACK ");
-		printack(&ack);
+		if (recordfn != ack.file_no || recordsn != ack.seq_no) {
+			recordfn = ack.file_no;
+			recordsn = ack.seq_no;
+			printf("Receive ACK ");
+			printack(&ack);
+		}
 
 		file_no = ack.file_no;
 		seq_no = 0;
@@ -31,10 +36,6 @@ void recv_ack(int sig) {
 
 		memset(&ack, 0, sizeof(ack));
 	}
-
-	count = 0;
-
-	alarm(1);
 }
 
 int main(int argc, char *argv[]) {
@@ -63,7 +64,7 @@ int main(int argc, char *argv[]) {
 		err_quit("socket");
 
 	signal(SIGALRM, recv_ack);
-	alarm(1);
+	ualarm( (useconds_t)( 1024 ), (useconds_t) 1024 );
 
 	for (file_no = 0, seq_no = 0; file_no <= nfiles; ) {
 		if (file_no == nfiles) continue;
@@ -79,12 +80,14 @@ int main(int argc, char *argv[]) {
 		}
 		else
 		{
+			seq_no = 0;
 			while (read(fr, pkt.data, sizeof(pkt.data)) > 0) {
 				if (file_no == ack.file_no && seq_no < ack.seq_no) continue;
+				// if (strlen(pkt.data) < MAXLINE-1) pkt.eof = 1;
 
 				// printpkt(&pkt);
 
-				for (int i = 0; i < 30; i++) {
+				for (int i = 0; i < 32; i++) {
 					if(sendto(s, (void*) &pkt, sizeof(pkt), 0, (struct sockaddr*) &sin, sizeof(sin)) < 0)
 						perror("sendto");
 					usleep(1);
@@ -96,18 +99,21 @@ int main(int argc, char *argv[]) {
 				memset(&pkt.data, 0, sizeof(pkt.data));
 			}
 
-			pkt.eof = 1;
-			if(sendto(s, (void*) &pkt, sizeof(pkt), 0, (struct sockaddr*) &sin, sizeof(sin)) < 0)
-				perror("sendto");
-
-			file_no++;
-			seq_no = 0;
+			if (pkt.eof == 0) {
+				pkt.eof = 1;
+				for (int i = 0; i < 32; i++) {
+					if(sendto(s, (void*) &pkt, sizeof(pkt), 0, (struct sockaddr*) &sin, sizeof(sin)) < 0)
+						perror("sendto");
+					usleep(1);
+				}
+			}
 
 			close(fr);
+
+			file_no++;
 		}
 
 		memset(filepath, 0, sizeof(filepath));
-		usleep(200);
 	}
 
 	close(s);
