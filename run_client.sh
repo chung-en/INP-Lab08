@@ -1,4 +1,4 @@
-if [ -z "$(ls -A /send)" ];
+if [ -z "$(ls -A send)" ];
 then
    ./file_generator
 fi

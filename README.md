@@ -1,8 +1,15 @@
 # INP-Lab08
 **Robust UDP challenge**
 
+## Updates
+- use `ualarm` to shrink the interval between each signal
+- send same packet several times to increase the success rate
+
+## Results
+![result](https://github.com/chung-en/INP-Lab08/blob/v2/Result.png)
+
 To compile and test the code, you can follow the steps below
-### Download
+## Download
 ```
 git clone https://github.com/chung-en/INP-Lab08.git
 ```
@@ -24,7 +31,7 @@ make
 ```
 ./run_server.sh
 ```
-This will automatically show files that server received after the program terminates.
+This will automatically show files that server received after the program terminates and calculate success rate and the number of correct files
 
 **Client**
 ```

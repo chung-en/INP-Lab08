@@ -17,7 +17,6 @@ void send_ack(int sig) {
 	sendto(s, (void*) &ack, sizeof(ack), 0, (struct sockaddr*) &csin, sizeof(csin));
 	// printack(&ack);
 
-	alarm(1);
 }
 
 int main(int argc, char *argv[]) {
@@ -48,7 +47,7 @@ int main(int argc, char *argv[]) {
 
 	signal(SIGALRM, send_ack);
 
-	alarm(1);
+	ualarm( (useconds_t)( 256 ), (useconds_t) 256 );
 	
 	/* handle receive file */
 	for (file_no = 0, seq_no = 0; file_no < nfiles; ) {
@@ -75,8 +74,10 @@ int main(int argc, char *argv[]) {
 			/* Store */
 			if (file_no == pkt.file_no && seq_no == pkt.seq_no)
 			{
-				printf("Recv %d %d\n", pkt.file_no, pkt.seq_no);
-				// printpkt(&pkt);
+				printf("Receive packet name: %d\tseq: %d\teof: %d\n", pkt.file_no, pkt.seq_no, pkt.eof);
+
+				ack_t ack = {.file_no = file_no, .seq_no = seq_no};
+				sendto(s, (void*) &ack, sizeof(ack), 0, (struct sockaddr*) &csin, sizeof(csin));
 
 				if (write(fw, pkt.data, strlen(pkt.data)) < 0)
 					perror("write");
@@ -96,7 +97,6 @@ int main(int argc, char *argv[]) {
 		close(fw);
 	}
 	
-	printf("check %d %d\n", file_no, seq_no);
 	send_ack(SIGALRM);
 
 	close(s);
