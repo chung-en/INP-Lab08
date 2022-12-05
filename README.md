@@ -21,7 +21,7 @@
 ---
 
 ## Results
-![result](https://github.com/chung-en/INP-Lab08/blob/v2/Result.png)
+![result](https://github.com/chung-en/INP-Lab08/blob/main/Result.png)
 
 ---
 
