@@ -74,7 +74,13 @@ int main(int argc, char *argv[]) {
 			/* Store */
 			if (file_no == pkt.file_no && seq_no == pkt.seq_no)
 			{
-				printf("Receive packet name: %d\tseq: %d\teof: %d\n", pkt.file_no, pkt.seq_no, pkt.eof);
+				printf("Receive packet name: %06d\tseq: %d\teof: %d\n", pkt.file_no, pkt.seq_no, pkt.eof);
+
+				if (pkt.eof == 1) {
+					file_no++;
+					seq_no = 0;
+					break;
+				}
 
 				ack_t ack = {.file_no = file_no, .seq_no = seq_no};
 				sendto(s, (void*) &ack, sizeof(ack), 0, (struct sockaddr*) &csin, sizeof(csin));
@@ -84,11 +90,6 @@ int main(int argc, char *argv[]) {
 				
 				seq_no++;
 
-				if (pkt.eof == 1) {
-					file_no++;
-					seq_no = 0;
-					break;	
-				}
 			}
 			
 			memset(&pkt, 0, sizeof(pkt));

@@ -80,13 +80,17 @@ int main(int argc, char *argv[]) {
 		}
 		else
 		{
+			/* Read file */
 			seq_no = 0;
 			while (read(fr, pkt.data, sizeof(pkt.data)) > 0) {
-				if (file_no == ack.file_no && seq_no < ack.seq_no) continue;
-				// if (strlen(pkt.data) < MAXLINE-1) pkt.eof = 1;
+				if (file_no == ack.file_no && seq_no < ack.seq_no) {
+					memset(&pkt.data, 0, sizeof(pkt.data));
+					continue;
+				}
 
 				// printpkt(&pkt);
 
+				/* Send packet */
 				for (int i = 0; i < 32; i++) {
 					if(sendto(s, (void*) &pkt, sizeof(pkt), 0, (struct sockaddr*) &sin, sizeof(sin)) < 0)
 						perror("sendto");
@@ -99,13 +103,12 @@ int main(int argc, char *argv[]) {
 				memset(&pkt.data, 0, sizeof(pkt.data));
 			}
 
-			if (pkt.eof == 0) {
-				pkt.eof = 1;
-				for (int i = 0; i < 32; i++) {
-					if(sendto(s, (void*) &pkt, sizeof(pkt), 0, (struct sockaddr*) &sin, sizeof(sin)) < 0)
-						perror("sendto");
-					usleep(1);
-				}
+			/* Send eof packet */
+			pkt.eof = 1;
+			for (int i = 0; i < 32; i++) {
+				if(sendto(s, (void*) &pkt, sizeof(pkt), 0, (struct sockaddr*) &sin, sizeof(sin)) < 0)
+					perror("sendto");
+				usleep(1);
 			}
 
 			close(fr);

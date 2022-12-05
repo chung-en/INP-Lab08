@@ -15,7 +15,7 @@
 
 #define err_quit(m) { perror(m); exit(-1); }
 
-#define MAXLINE 1024
+#define MAXLINE 512
 
 typedef struct {
     int     file_no;
